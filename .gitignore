@@ -1,5 +1,8 @@
 # Unity ignores
 SensorFusionTests/Temp
+SensorFusionTests/Library
+*.apk
+*.sln
 
 # Windows image file caches
 Thumbs.db
