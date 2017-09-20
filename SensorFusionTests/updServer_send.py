@@ -31,12 +31,8 @@ valid_devices = ["tracker_1",
                  "tracking_reference_2",
                  "controller_1"]
 
-UDP_IP = "192.168.1.90"
-#UDP_IP2 = "192.168.1.200"
-# test web client
-#UDP_IP = "172.16.33.60"
+UDP_IP = "192.168.1.50"
 UDP_PORT = 10000
-MESSAGE = b"Hello, World!"
  
 print ("UDP target IP:", UDP_IP)
 print ("UDP target port:", UDP_PORT)
@@ -46,9 +42,9 @@ sock = socket.socket(socket.AF_INET, # Internet
 data = {}
 
 serial_to_id = {
-        "LHB-A4C4A926" : "LIGHTHOUSE1",
-        "LHB-85889B70" : "LIGHTHOUSE2",
-        "LHR-0DDC8DA8" : "VR2"
+        "LHB-515DFE25" : "LIGHTHOUSE1",
+        "LHB-B2857478" : "LIGHTHOUSE2",
+        "LHR-09DD5808" : "Tracker25"
     }
 
 if interval:
@@ -56,7 +52,8 @@ if interval:
         start = time.time()
         txt = ""
         for device_key in v.devices.keys():
-            if device_key not in valid_devices or serial_to_id[v.devices[device_key].get_serial()] is not "VR2":
+            # vvv fix this vvv
+            if device_key not in valid_devices or serial_to_id[v.devices[device_key].get_serial()] is not "Tracker25":
                 continue
             new_data = {}
             data_ = v.devices[device_key].get_pose_quaternion()
@@ -74,7 +71,6 @@ if interval:
         jsondata = json.dumps(data)
         
         sock.sendto(jsondata.encode('utf-8'), (UDP_IP, UDP_PORT))
-        #sock.sendto(jsondata.encode('utf-8'), (UDP_IP2, UDP_PORT))
         
         sleep_time = interval-(time.time()-start)
         if sleep_time>0:

@@ -1,6 +1,6 @@
 # Unity ignores
 SensorFusionTests/Temp
-SensorFusionTests/Library
+SensorFusionTests/Library/**/
 *.apk
 *.sln
 
