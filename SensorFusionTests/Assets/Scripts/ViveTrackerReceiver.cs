@@ -19,6 +19,7 @@ public class ViveTrackerReceiver : MonoBehaviour {
     [Serializable]
     private class ViveTrackerData
     {
+        public bool valid;
         public float x, y, z, qx, qy, qz, qw;
     }
 
@@ -43,9 +44,11 @@ public class ViveTrackerReceiver : MonoBehaviour {
 	void Update () {
 		lock (lockObject)
         {
-            vtPosition = new Vector3(vtData.x, vtData.y, vtData.z);
-            vtRotation = new Quaternion(vtData.qx, vtData.qy, vtData.qz, vtData.qw);
-            Debug.Log(vtPosition);
+            if (vtData.valid)
+            {
+                vtPosition = new Vector3(vtData.x, vtData.y, vtData.z);
+                vtRotation = new Quaternion(vtData.qx, vtData.qy, vtData.qz, vtData.qw);
+            }
         }
 	}
 
@@ -77,6 +80,7 @@ public class ViveTrackerReceiver : MonoBehaviour {
             {
                 string jsonString = Encoding.ASCII.GetString(buf);
                 vtData = JsonUtility.FromJson<ViveTrackerData>(jsonString);
+                Debug.Log(vtData.y);
             }
         }
 

@@ -7,13 +7,8 @@ import json
 v = triad_openvr.triad_openvr()
 v.print_discovered_objects()
 
-if len(sys.argv) == 1:
-    interval = 1/float(120)
-elif len(sys.argv) == 2:
-    interval = 1/float(sys.argv[0])
-else:
-    print("Invalid number of arguments")
-    interval = False
+fps = 1
+interval = 1/float(fps)
 
 valid_devices = ["tracker_1",
                  "tracker_2",
@@ -31,7 +26,7 @@ valid_devices = ["tracker_1",
                  "tracking_reference_2",
                  "controller_1"]
 
-UDP_IP = "192.168.1.50"
+UDP_IP = "192.168.1.101"
 UDP_PORT = 10000
  
 print ("UDP target IP:", UDP_IP)
@@ -56,21 +51,23 @@ if interval:
             if device_key not in valid_devices or serial_to_id[v.devices[device_key].get_serial()] is not "Tracker25":
                 continue
             new_data = {}
+            data['valid'] = False
             data_ = v.devices[device_key].get_pose_quaternion()
-            new_data['x'] = data_[0]
-            new_data['y'] = data_[1]
-            new_data['z'] = data_[2]
-            new_data['qw'] = data_[3]
-            new_data['qx'] = data_[4]
-            new_data['qy'] = data_[5]
-            new_data['qz'] = data_[6]
+            data['x'] = data_[0]
+            data['y'] = data_[1]
+            data['z'] = data_[2]
+            data['qw'] = data_[3]
+            data['qx'] = data_[4]
+            data['qy'] = data_[5]
+            data['qz'] = data_[6]
 
-            if abs(new_data['x']) + abs(new_data['y']) + abs(new_data['z']) > 0:
-                data = new_data
+            if abs(data['x']) + abs(data['y']) + abs(data['z']) > 0:
+                data['valid'] = True
 
         jsondata = json.dumps(data)
         
         sock.sendto(jsondata.encode('utf-8'), (UDP_IP, UDP_PORT))
+        print (jsondata)
         
         sleep_time = interval-(time.time()-start)
         if sleep_time>0:

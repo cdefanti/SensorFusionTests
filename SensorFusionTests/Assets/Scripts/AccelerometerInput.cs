@@ -26,6 +26,6 @@ public class AccelerometerInput : MonoBehaviour {
     //Debug.Log(string.Format("UNITYDEBUG: pos {0} {1} {2}", this.transform.position.x, this.transform.position.y, this.transform.position.z));
 
     // debug
-    this.transform.position = vel;
+    //this.transform.position = vel;
   }
 }
