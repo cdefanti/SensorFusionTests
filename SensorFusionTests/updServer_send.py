@@ -27,6 +27,7 @@ valid_devices = ["tracker_1",
                  "controller_1"]
 
 UDP_IP = "192.168.1.101"
+#UDP_IP = "127.0.0.1"
 UDP_PORT = 10000
  
 print ("UDP target IP:", UDP_IP)
