@@ -27,7 +27,7 @@ valid_devices = ["tracker_1",
                  "controller_1"]
 
 UDP_IP = "192.168.1.101"
-#UDP_IP = "127.0.0.1"
+UDP_IP2 = "127.0.0.1"
 UDP_PORT = 10000
  
 print ("UDP target IP:", UDP_IP)
@@ -68,6 +68,7 @@ if interval:
         jsondata = json.dumps(data)
         
         sock.sendto(jsondata.encode('utf-8'), (UDP_IP, UDP_PORT))
+        sock.sendto(jsondata.encode('utf-8'), (UDP_IP2, UDP_PORT))
         print (jsondata)
         
         sleep_time = interval-(time.time()-start)

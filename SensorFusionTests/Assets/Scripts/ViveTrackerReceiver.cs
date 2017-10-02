@@ -27,6 +27,12 @@ public class ViveTrackerReceiver : MonoBehaviour {
     private Vector3 vtPosition;
     private Quaternion vtRotation;
 
+    private Vector3 vtVelocity;
+    private Vector3 vtAccel;
+
+    private bool isDataFresh;
+    private float lastUpdateTime;
+
 	// Use this for initialization
 	void Start () {
         soc = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -35,8 +41,13 @@ public class ViveTrackerReceiver : MonoBehaviour {
         vtPosition = new Vector3();
         vtRotation = new Quaternion();
 
+        vtVelocity = new Vector3();
+        vtAccel = new Vector3();
+
         Thread pthread = new Thread(new ThreadStart(SocRecv));
         recv = true;
+        isDataFresh = false;
+        lastUpdateTime = Time.time;
         pthread.Start();
 	}
 	
@@ -44,10 +55,17 @@ public class ViveTrackerReceiver : MonoBehaviour {
 	void Update () {
 		lock (lockObject)
         {
-            if (vtData.valid)
+            if (vtData.valid && isDataFresh)
             {
+                Vector3 oldPos = new Vector3(vtPosition.x, vtPosition.y, vtPosition.z);
+                Vector3 oldVel = new Vector3(vtVelocity.x, vtVelocity.y, vtVelocity.z);
                 vtPosition = new Vector3(vtData.x, vtData.y, vtData.z);
                 vtRotation = new Quaternion(vtData.qx, vtData.qy, vtData.qz, vtData.qw);
+                vtVelocity = (vtPosition - oldPos) / (Time.time - lastUpdateTime);
+                vtAccel = (vtVelocity - oldVel) / (Time.time - lastUpdateTime);
+
+                lastUpdateTime = Time.time;
+                isDataFresh = false;
             }
         }
 	}
@@ -60,6 +78,16 @@ public class ViveTrackerReceiver : MonoBehaviour {
     public Quaternion getRotation()
     {
         return vtRotation;
+    }
+
+    public Vector3 getVel()
+    {
+        return vtVelocity;
+    }
+
+    public Vector3 getAccel()
+    {
+        return vtAccel;
     }
 
     private void OnApplicationQuit()
@@ -80,7 +108,7 @@ public class ViveTrackerReceiver : MonoBehaviour {
             {
                 string jsonString = Encoding.ASCII.GetString(buf);
                 vtData = JsonUtility.FromJson<ViveTrackerData>(jsonString);
-                Debug.Log(vtData.y);
+                isDataFresh = true;
             }
         }
 

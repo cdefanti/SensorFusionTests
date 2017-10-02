@@ -46,7 +46,7 @@ public class SensorFusion : MonoBehaviour {
         //posAlpha = Mathf.Pow(posAlpha, 2f);
         //posAlpha = 1f - posAlpha;
         this.transform.position = Vector3.Lerp(posGuess, gtPos, posAlpha);
-        Debug.Log("UNITYDEBUG: " + posAlpha);
+        //Debug.Log("UNITYDEBUG: " + posAlpha);
 
 
         //rotAlpha = 

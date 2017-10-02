@@ -1,0 +1,4 @@
+For python 2/3:
+pip install PyOpenGL PyOpenGL_accelerate
+
+pip install pygame
