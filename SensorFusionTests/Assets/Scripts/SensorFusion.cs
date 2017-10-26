@@ -4,29 +4,74 @@ using UnityEngine;
 
 public class SensorFusion : MonoBehaviour {
 
-    public ViveTrackerReceiver vtData;
     public AccelerometerInput localData;
 
     private Vector3 velGuess;
     private Vector3 lastKnownPos;
+
+    private Vector3 gtPos;
+    private Quaternion gtRot;
+    private float gtLastUpdateTime;
+
+    public bool fuse = false;
 
 	// Use this for initialization
 	void Start () {
         velGuess = Vector3.zero;
         lastKnownPos = Vector3.zero;
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    public void UpdateGTData(Vector3 pos, Quaternion rot, Vector3 vel, float time)
+    {
+        gtPos = pos;
+        gtRot = rot;
+        velGuess = vel;
+        gtLastUpdateTime = time;
+        transform.position = gtPos;
+        /*
+        transform.position = Vector3.Lerp(gtPos, transform.position, Vector3.Distance(this.transform.position, gtPos));
+        
+        Quaternion imu = UnityEngine.VR.InputTracking.GetLocalRotation(UnityEngine.VR.VRNode.CenterEye);
+
+        Quaternion inv = Quaternion.Inverse(imu);
+        Quaternion optical = rot * inv;
+        Quaternion oldOrientation = this.transform.rotation;
+
+        float yOpt = optical.eulerAngles.y;
+        float yOld = oldOrientation.eulerAngles.y;
+        float yDiff = Mathf.Abs(yOpt - yOld);
+        if (yDiff > 180f)
+        {
+            if (yOpt < yOld)
+            {
+                yOpt += 360f;
+            }
+            else
+            {
+                yOld += 360f;
+            }
+            yDiff = Mathf.Abs(yOpt - yOld);
+        }
+        float t = yDiff / 180f;
+        t = t * t;
+        float yNew = Mathf.LerpAngle(yOld, yOpt, t);
+        this.transform.rotation = Quaternion.AngleAxis(yNew, Vector3.up);
+        */
+    }
+
+    // Update is called once per frame
+    void Update () {
+        return;
+        if (Input.GetMouseButtonUp(0))
+        {
+            MouseUp();
+        }
         float posAlpha;
         float rotAlpha;
 
-        Vector3 gtPos = vtData.getPosition();
-        Quaternion gtRot = vtData.getRotation();
-
         Vector3 localPos = localData.transform.position;
         Quaternion localRot = localData.transform.rotation;
-
+        /*
         // blend position
         if (lastKnownPos != gtPos)
         {
@@ -41,16 +86,21 @@ public class SensorFusion : MonoBehaviour {
             Vector3 localAccel = localData.getAccel();
             velGuess += localAccel;
         }
-        Vector3 posGuess = this.transform.position + velGuess * Time.deltaTime;
-        posAlpha = Mathf.Clamp(Vector3.Distance(posGuess, gtPos), 0f, 1f);
-        //posAlpha = Mathf.Pow(posAlpha, 2f);
+        */
+        
         //posAlpha = 1f - posAlpha;
-        this.transform.position = Vector3.Lerp(posGuess, gtPos, posAlpha);
-        //Debug.Log("UNITYDEBUG: " + posAlpha);
-
-
+        if (fuse)
+        {
+            Vector3 posGuess = this.transform.position + velGuess * Time.deltaTime;
+            this.transform.position = posGuess;
+        }
         //rotAlpha = 
 
         //this.transform.rotation = Quaternion.Slerp(localRot, gtRot, rotAlpha);
 	}
+
+    void MouseUp()
+    {
+        fuse = !fuse;
+    }
 }

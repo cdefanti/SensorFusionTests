@@ -35,14 +35,14 @@ public class DataWriter : MonoBehaviour {
         {
             vector3sToPrint["acl_ph"].Add(data.localData.getAccel());
             vector3sToPrint["vel_ph"].Add(data.localData.getVel());
-            vector3sToPrint["pos_ph"].Add(data.localData.transform.position);
+            vector3sToPrint["pos_ph"].Add(data.localData.getPos());
 
-            if (vector3sToPrint["pos_gt"].Count == 0 || vector3sToPrint["pos_gt"][vector3sToPrint["pos_gt"].Count - 1] != data.vtData.getPosition())
-            {
-                vector3sToPrint["acl_gt"].Add(data.vtData.getAccel());
-                vector3sToPrint["vel_gt"].Add(data.vtData.getVel());
-                vector3sToPrint["pos_gt"].Add(data.vtData.getPosition());
-            }
+            //if (vector3sToPrint["pos_gt"].Count == 0 || vector3sToPrint["pos_gt"][vector3sToPrint["pos_gt"].Count - 1] != data.vtData.getPosition())
+            //{
+                //vector3sToPrint["acl_gt"].Add(data.vtData.getAccel());
+                //vector3sToPrint["vel_gt"].Add(data.vtData.getVel());
+                //vector3sToPrint["pos_gt"].Add(data.vtData.getPosition());
+            //}
         }
 	}
 

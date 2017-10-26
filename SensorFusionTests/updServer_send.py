@@ -7,7 +7,7 @@ import json
 v = triad_openvr.triad_openvr()
 v.print_discovered_objects()
 
-fps = 1
+fps = 30
 interval = 1/float(fps)
 
 valid_devices = ["tracker_1",
@@ -68,7 +68,7 @@ if interval:
         jsondata = json.dumps(data)
         
         sock.sendto(jsondata.encode('utf-8'), (UDP_IP, UDP_PORT))
-        sock.sendto(jsondata.encode('utf-8'), (UDP_IP2, UDP_PORT))
+        #sock.sendto(jsondata.encode('utf-8'), (UDP_IP2, UDP_PORT))
         print (jsondata)
         
         sleep_time = interval-(time.time()-start)

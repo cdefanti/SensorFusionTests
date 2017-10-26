@@ -33,6 +33,8 @@ public class ViveTrackerReceiver : MonoBehaviour {
     private bool isDataFresh;
     private float lastUpdateTime;
 
+    public SensorFusion sf;
+
 	// Use this for initialization
 	void Start () {
         soc = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -66,6 +68,8 @@ public class ViveTrackerReceiver : MonoBehaviour {
 
                 lastUpdateTime = Time.time;
                 isDataFresh = false;
+
+                sf.UpdateGTData(vtPosition, vtRotation, vtVelocity, lastUpdateTime);
             }
         }
 	}
@@ -88,6 +92,11 @@ public class ViveTrackerReceiver : MonoBehaviour {
     public Vector3 getAccel()
     {
         return vtAccel;
+    }
+
+    public float getTimeSinceLastUpdate()
+    {
+        return Time.time - lastUpdateTime;
     }
 
     private void OnApplicationQuit()

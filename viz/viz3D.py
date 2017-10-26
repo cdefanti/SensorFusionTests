@@ -8,8 +8,8 @@ import pygame
 import numpy
 from vector import Vector3
 from matrix44 import Matrix44
-import csv
 import math
+import data
 
 # SHADERS
 
@@ -51,9 +51,8 @@ void main()
 
 # GLOBALS
 
-# in data
-gVertices = []
-gColors = []
+gVertices = data.getVertices()
+gColors = data.getColors()
 
 # MVP matrices
 model = Matrix44.identity()
@@ -71,52 +70,27 @@ res = (1024, 1024)
 # Read data into vertices
 # TODO: Streamline this
 
-with open('../data/acl_ph.txt') as csvfile:
-    reader = csv.reader(csvfile, delimiter='\t')
-    for row in reader:
-        gVertices.append(float(row[0]) * 1)
-        gVertices.append(float(row[1]) * 1)
-        gVertices.append(float(row[2]) * 1)
-
-        gColors.append(0.0)
-        gColors.append(1.0)
-        gColors.append(1.0)
-        gColors.append(1.0)
-
-with open('../data/acl_gt.txt') as csvfile:
-    reader = csv.reader(csvfile, delimiter='\t')
-    for row in reader:
-        gVertices.append(float(row[0]) * 1)
-        gVertices.append(float(row[1]) * 1)
-        gVertices.append(float(row[2]) * 1)
-
-        gColors.append(1.0)
-        gColors.append(0.0)
-        gColors.append(1.0)
-        gColors.append(1.0)
-
-gVertices = numpy.array(gVertices, dtype=numpy.float32)
-gColors = numpy.array(gColors, dtype=numpy.float32)
 
 simtime = 0.0
 
 
 # functions
 
-def create_axes_vbo(shader, minCoords, maxCoords):
-    x_line = numpy.array([minCoords.x, 0.0, 0.0, maxCoords.x, 0.0, 0.0], dtype=numpy.float32)
-    y_line = numpy.array([0.0, minCoords.y, 0.0, 0.0, maxCoords.y, 0.0], dtype=numpy.float32)
-    z_line = numpy.array([0.0, 0.0, minCoords.z, 0.0, 0.0, maxCoords.z], dtype=numpy.float32)
+def create_axes_vbo(min_coords, max_coords):
+    x_line = numpy.array([min_coords.x, 0.0, 0.0, max_coords.x, 0.0, 0.0], dtype=numpy.float32)
+    y_line = numpy.array([0.0, min_coords.y, 0.0, 0.0, max_coords.y, 0.0], dtype=numpy.float32)
+    z_line = numpy.array([0.0, 0.0, min_coords.z, 0.0, 0.0, max_coords.z], dtype=numpy.float32)
 
     x_colors = numpy.array([1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0], dtype=numpy.float32)
     y_colors = numpy.array([0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0], dtype=numpy.float32)
     z_colors = numpy.array([0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0], dtype=numpy.float32)
 
-    return [create_vertex_array_object(shader, x_line, x_colors), create_vertex_array_object(shader, y_line, y_colors), create_vertex_array_object(shader, z_line, z_colors)]
+    return [create_vertex_array_object(x_line, x_colors), create_vertex_array_object(y_line, y_colors), create_vertex_array_object(z_line, z_colors)]
 
-def create_vertex_array_object(shader, vertices, colors):
+
+def create_vertex_array_object(vertices, colors):
     vertex_array_object = GL.glGenVertexArrays(1)
-    GL.glBindVertexArray( vertex_array_object )
+    GL.glBindVertexArray(vertex_array_object)
 
     vert_buff = create_attribute(0, 3, vertices)
     colors_buff = create_attribute(1, 4, colors)
@@ -132,20 +106,20 @@ def create_vertex_array_object(shader, vertices, colors):
 
     return vertex_array_object
 
-def create_attribute(slot, num_components, data, usage = GL.GL_STATIC_DRAW):
+
+def create_attribute(slot, num_components, buf, usage = GL.GL_STATIC_DRAW):
     # Generate buffers to hold our attribute
     vertex_buffer = GL.glGenBuffers(1)
     GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vertex_buffer)
 
     # Send the data over to the buffer
-    GL.glBufferData(GL.GL_ARRAY_BUFFER, data.nbytes, data, usage)
+    GL.glBufferData(GL.GL_ARRAY_BUFFER, buf.nbytes, buf, usage)
 
     GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vertex_buffer)
     GL.glEnableVertexAttribArray(slot)
     GL.glVertexAttribPointer(slot, num_components, GL.GL_FLOAT, False, 0, ctypes.c_void_p(0))
 
     return vertex_buffer
-
 
 
 def display(shader, vertex_array_object, time, glMode, vert_len):
@@ -163,9 +137,10 @@ def display(shader, vertex_array_object, time, glMode, vert_len):
     GL.glPointSize(3 * 1024 / res[0])
     
     GL.glDrawArrays(glMode, 0, vert_len)
-    GL.glBindVertexArray( 0 )
+    GL.glBindVertexArray(0)
 
     GL.glUseProgram(0)
+
 
 #TODO: TEST THIS ROUTINE
 def scale_to_01_cube(arr):
@@ -219,6 +194,7 @@ def scale_to_01_cube(arr):
         arr[i+1] = v[1]
         arr[i+2] = v[2]
 
+
 def screen_to_arcball(screen_vec):
     ret = Vector3()
     ret.x = -(screen_vec[0] / float(res[0]) * 2.0 - 1.0)
@@ -231,6 +207,7 @@ def screen_to_arcball(screen_vec):
         ret.y /= math.sqrt(length2)
 
     return ret
+
 
 def handle_arcball():
     global last_click_pos
@@ -284,6 +261,7 @@ def handle_arcball():
             model = model_mod * model
             model_mod = Matrix44.identity()
 
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode(res, pygame.OPENGL|pygame.DOUBLEBUF)
@@ -298,10 +276,8 @@ def main():
         OpenGL.GL.shaders.compileShader(fragment_shader, GL.GL_FRAGMENT_SHADER)
     )
 
-    vertex_array_object = create_vertex_array_object(shader, gVertices, gColors)
-    line_vbos = create_axes_vbo(shader, Vector3.from_floats(-3.0, -3.0, -3.0), Vector3.from_floats(3.0, 3.0, 3.0))
-
-    #convert_array_to_vec3(vertices)
+    vertex_array_object = create_vertex_array_object(gVertices, gColors)
+    line_vbos = create_axes_vbo(Vector3.from_floats(-3.0, -3.0, -3.0), Vector3.from_floats(3.0, 3.0, 3.0))
 
     clock = pygame.time.Clock()
     global view
@@ -326,6 +302,7 @@ def main():
         display(shader, line_vbos[1], simtime, GL.GL_LINES, 2)
         display(shader, line_vbos[2], simtime, GL.GL_LINES, 2)
         pygame.display.flip()
+
 
 if __name__ == '__main__':
     try:

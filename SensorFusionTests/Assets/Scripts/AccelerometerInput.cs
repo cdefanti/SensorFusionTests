@@ -38,9 +38,10 @@ public class AccelerometerInput : MonoBehaviour {
 	// Update is called once per frame
     void Update () {
         rot = UnityEngine.VR.InputTracking.GetLocalRotation(UnityEngine.VR.VRNode.CenterEye);
-        accel = rot * Input.acceleration;
+        accel = Input.acceleration;
         accel.Scale(new Vector3(-1, 1, 1)); // x is flipped in phone -> Unity axis
         accel += rot * Vector3.up;
+        accel = rot * accel;
         vel += accel * Time.deltaTime;
         pos += vel * Time.deltaTime;
     }
